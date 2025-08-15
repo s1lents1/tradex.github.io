@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tradex App</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body, html {
       margin: 0;
@@ -55,23 +56,20 @@
       align-items: center;
       justify-content: center;
       background-color: #0e0e10;
+      color: white;
+      font-size: 20px;
     }
     #graph-container {
       display: none;
       height: 100vh;
       width: 100vw;
-      position: relative;
+      background-color: #0e0e10;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
     }
     #symbol-selector {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 10;
-      background-color: rgba(20, 20, 20, 0.8);
-      border: 1px solid #444;
-      color: white;
-      padding: 10px;
-      border-radius: 4px;
+      margin-bottom: 20px;
     }
     select {
       background-color: #0e0e10;
@@ -80,61 +78,53 @@
       padding: 5px;
       border-radius: 4px;
     }
-    #tradingview_cryptochart {
-      height: 100%;
-      width: 100%;
+    canvas {
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      max-width: 100%;
+      height: 400px;
     }
   </style>
 </head>
 <body>
 
   <div id="login-container">
+    <h2 style="margin-bottom: 20px;">Вход в Tradex</h2>
     <input type="text" id="login" placeholder="Login" autocomplete="off" />
     <input type="password" id="password" placeholder="Password" autocomplete="off" />
-    <button id="login-btn">Sign In</button>
+    <button id="login-btn">Войти</button>
     <div id="login-error"></div>
   </div>
 
-  <div id="loader" class="ui-abstergo">
-    <div class="abstergo-loader">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <div class="ui-text">
-      <span>Tradex App Loading</span>
-      <span class="ui-dot"></span>
-      <span class="ui-dot"></span>
-      <span class="ui-dot"></span>
-    </div>
-  </div>
+  <div id="loader">Загрузка графика...</div>
 
   <div id="graph-container">
     <div id="symbol-selector">
       <label for="symbol">Монета:</label>
       <select id="symbol">
-        <option value="BINANCE:BTCUSDT">Bitcoin (BTC)</option>
-        <option value="BINANCE:ETHUSDT">Ethereum (ETH)</option>
-        <option value="BINANCE:SOLUSDT">Solana (SOL)</option>
-        <option value="BINANCE:XRPUSDT">XRP</option>
-        <option value="BINANCE:DOGEUSDT">Dogecoin (DOGE)</option>
-        <option value="BINANCE:ADAUSDT">Cardano (ADA)</option>
+        <option value="bitcoin">Bitcoin (BTC)</option>
+        <option value="ethereum">Ethereum (ETH)</option>
+        <option value="solana">Solana (SOL)</option>
+        <option value="ripple">XRP</option>
+        <option value="dogecoin">Dogecoin (DOGE)</option>
+        <option value="cardano">Cardano (ADA)</option>
       </select>
     </div>
-
-    <div id="tradingview_cryptochart"></div>
+    <canvas id="cryptoChart"></canvas>
   </div>
 
-  <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
     const loginContainer = document.getElementById('login-container');
     const loader = document.getElementById('loader');
     const graphContainer = document.getElementById('graph-container');
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
+    const symbolSelect = document.getElementById('symbol');
+    const ctx = document.getElementById('cryptoChart').getContext('2d');
 
     const validLogin = 'admin';
     const validPassword = 'MODERATOR';
+    let chart;
 
     loginBtn.addEventListener('click', () => {
       const login = document.getElementById('login').value.trim();
@@ -148,38 +138,66 @@
         setTimeout(() => {
           loader.style.display = 'none';
           graphContainer.style.display = 'block';
-          loadChart(document.getElementById('symbol').value);
-        }, 3000);
+          loadChart(symbolSelect.value);
+        }, 2000);
       } else {
         loginError.textContent = 'Неверный логин или пароль';
       }
     });
 
-    let widget = null;
-    function loadChart(symbol) {
-      if (widget) {
-        widget.remove();
-      }
-      widget = new TradingView.widget({
-        width: '100%',
-        height: '100%',
-        symbol: symbol,
-        interval: 'D',
-        timezone: 'Etc/UTC',
-        theme: 'dark',
-        style: '1',
-        locale: 'en',
-        toolbar_bg: '#0e0e10',
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        save_image: false,
-        container_id: 'tradingview_cryptochart',
+    symbolSelect.addEventListener('change', () => {
+      loadChart(symbolSelect.value);
+    });
+
+    async function loadChart(coinId) {
+      const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=7`);
+      const data = await res.json();
+
+      const labels = data.prices.map(p => {
+        const date = new Date(p[0]);
+        return `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:00`;
+      });
+
+      const prices = data.prices.map(p => p[1]);
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `${coinId.toUpperCase()} / USD`,
+            data: prices,
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.2,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: 'white'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: 'white'
+              }
+            },
+            y: {
+              ticks: {
+                color: 'white'
+              }
+            }
+          }
+        }
       });
     }
-
-    document.getElementById('symbol').addEventListener('change', (e) => {
-      loadChart(e.target.value);
-    });
   </script>
 </body>
 </html>
