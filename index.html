@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tradex App</title>
 <style>
+  /* ваш стиль без изменений */
   body, html {
     margin: 0; padding: 0; height: 100%; background-color: #0e0e10; font-family: sans-serif; color: white;
   }
@@ -157,12 +158,12 @@
   <div id="symbol-selector">
     <label for="symbol">Монета:</label>
     <select id="symbol">
-      <option value="BTC">Bitcoin (BTC)</option>
-      <option value="ETH">Ethereum (ETH)</option>
-      <option value="SOL">Solana (SOL)</option>
-      <option value="XRP">XRP</option>
-      <option value="DOGE">Dogecoin (DOGE)</option>
-      <option value="ADA">Cardano (ADA)</option>
+      <option value="bitcoin">Bitcoin (BTC)</option>
+      <option value="ethereum">Ethereum (ETH)</option>
+      <option value="solana">Solana (SOL)</option>
+      <option value="ripple">XRP</option>
+      <option value="dogecoin">Dogecoin (DOGE)</option>
+      <option value="cardano">Cardano (ADA)</option>
     </select>
   </div>
   <canvas id="chart-canvas"></canvas>
@@ -173,6 +174,7 @@
     </ul>
   </div>
 </div>
+
 <script>
 const loginContainer = document.getElementById('login-container');
 const loader = document.getElementById('loader');
@@ -193,37 +195,37 @@ let currentSymbol = symbolSelect.value;
 let lastTimestamp = 0;
 
 const botForecasts = {
-  BTC: [
+  bitcoin: [
     'BTC растет, возможен откат.',
     'Покупка по текущей цене — рискованно.',
     'Ожидается сильное движение вверх.',
     'Цена может зафиксировать уровень поддержки.',
   ],
-  ETH: [
+  ethereum: [
     'ETH стабилизируется, можно ждать входа.',
     'Высокая волатильность сегодня.',
     'Ожидается рост на новостях.',
     'Возможен небольшой спад перед ростом.',
   ],
-  SOL: [
+  solana: [
     'SOL демонстрирует силу, держать позиции.',
     'Скоро может быть коррекция.',
     'Идеальное время для покупки.',
     'Прогноз — боковой тренд.',
   ],
-  XRP: [
+  ripple: [
     'XRP может пробить сопротивление.',
     'Будьте осторожны, возможен флэт.',
     'Позитивный настрой рынка.',
     'Краткосрочная фиксация прибыли возможна.',
   ],
-  DOGE: [
+  dogecoin: [
     'DOGE нестабилен, играть осторожно.',
     'Ожидается всплеск активности.',
     'Можно рассматривать для краткосрочных сделок.',
     'Риск высок, рекомендуем наблюдать.',
   ],
-  ADA: [
+  cardano: [
     'ADA укрепляет позиции.',
     'Небольшая коррекция — нормальное явление.',
     'Рост на фоне позитивных новостей.',
@@ -231,7 +233,7 @@ const botForecasts = {
   ],
 };
 
-// Автоматический вход по нажатию Enter на любом поле
+// Автоматический вход по Enter
 document.getElementById('login').addEventListener('keydown', e => {
   if (e.key === 'Enter') loginBtn.click();
 });
@@ -239,7 +241,7 @@ document.getElementById('password').addEventListener('keydown', e => {
   if (e.key === 'Enter') loginBtn.click();
 });
 
-// Функция входа
+// Вход
 loginBtn.addEventListener('click', () => {
   const login = document.getElementById('login').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -251,71 +253,81 @@ loginBtn.addEventListener('click', () => {
       loader.style.display = 'none';
       app.style.display = 'block';
       initCanvas();
-      startBot();
-      startChartAnimation();
-    }, 5000); // 5 секунд лоадера
+      loadHistoricalData(currentSymbol).then(() => {
+        startBot();
+        startChartAnimation();
+      });
+    }, 3000); // 3 сек лоадера
   } else {
     loginError.textContent = 'Неверный логин или пароль';
   }
 });
 
-// Функция инициализации canvas (размеры под окно)
+// Инициализация canvas
 function initCanvas() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
-  dataPoints = generateInitialData(currentSymbol);
 }
 
-// Меняем размер холста под размер окна
+// resize
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
-// Генерация стартовых данных для графика (случайная синусоида с шумом)
-function generateInitialData(symbol) {
-  let baseValue = getBasePrice(symbol);
-  let points = [];
-  const count = 200;
-  for (let i = 0; i < count; i++) {
-    // Синусоида с шумом
-    let val = baseValue + Math.sin(i / 10) * baseValue * 0.03 + (Math.random() - 0.5) * baseValue * 0.02;
-    points.push(val);
+// Загрузка исторических данных с CoinGecko (1 день, 200 точек)
+async function loadHistoricalData(symbol) {
+  dataPoints = [];
+  try {
+    const url = `https://api.coingecko.com/api/v3/coins/${symbol}/market_chart?vs_currency=usd&days=1&interval=hourly`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Ошибка загрузки данных');
+    const json = await res.json();
+    // json.prices - массив [timestamp, price]
+    // берем максимум 200 точек, если меньше - берем все
+    let prices = json.prices;
+    if (prices.length > 200) {
+      // выборочно возьмём равномерно
+      const step = Math.floor(prices.length / 200);
+      prices = prices.filter((_, i) => i % step === 0).slice(0, 200);
+    }
+    dataPoints = prices.map(p => p[1]);
+  } catch (e) {
+    console.error(e);
+    // fallback: если ошибка, создадим пустой массив с 200 элементами текущей цены 0
+    dataPoints = new Array(200).fill(0);
   }
-  return points;
+  drawChart();
 }
 
-// Базовая цена для монеты (примерные)
-function getBasePrice(symbol) {
-  switch (symbol) {
-    case 'BTC': return 30000;
-    case 'ETH': return 1800;
-    case 'SOL': return 35;
-    case 'XRP': return 0.6;
-    case 'DOGE': return 0.07;
-    case 'ADA': return 1.1;
-    default: return 100;
+// Обновление данных: запрашиваем текущую цену и добавляем в dataPoints
+async function updateData() {
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${currentSymbol}&vs_currencies=usd`);
+    if (!res.ok) throw new Error('Ошибка загрузки текущей цены');
+    const json = await res.json();
+    const price = json[currentSymbol]?.usd;
+    if (price !== undefined && price !== null) {
+      dataPoints.shift();
+      dataPoints.push(price);
+    }
+  } catch (e) {
+    console.error(e);
+    // При ошибке можно не добавлять новую точку или добавить последнюю цену без изменений
+    const last = dataPoints.length ? dataPoints[dataPoints.length - 1] : 0;
+    dataPoints.shift();
+    dataPoints.push(last);
   }
 }
 
-// Обновление графика — сдвигаем данные и рисуем
-function updateData() {
-  // Убираем первый элемент
-  dataPoints.shift();
-  // Добавляем новый с небольшими изменениями от последнего
-  let last = dataPoints[dataPoints.length - 1];
-  let change = (Math.random() - 0.5) * getBasePrice(currentSymbol) * 0.01; // ±1% изменения
-  let newVal = Math.max(0, last + change);
-  dataPoints.push(newVal);
-}
-
-// Рисуем график на canvas (свечи упрощенно)
+// Рисуем график — то же что и было
 function drawChart() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#0e0e10';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Отрисуем ось Y
+  if (!dataPoints.length) return;
+
   const maxPrice = Math.max(...dataPoints);
   const minPrice = Math.min(...dataPoints);
   const margin = 50;
@@ -330,86 +342,78 @@ function drawChart() {
   ctx.lineTo(canvas.width - margin, canvas.height - margin);
   ctx.stroke();
 
-  // Рисуем свечи - сделаем простым графиком линий с точками
   ctx.strokeStyle = '#00ff99';
   ctx.lineWidth = 2;
   ctx.beginPath();
   for (let i = 0; i < dataPoints.length; i++) {
     const x = margin + (i / dataPoints.length) * width;
-    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice));
+    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice || 1));
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
 
-  // Рисуем точки
   ctx.fillStyle = '#00ff99';
   for (let i = 0; i < dataPoints.length; i += 10) {
     const x = margin + (i / dataPoints.length) * width;
-    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice));
+    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice || 1));
     ctx.beginPath();
     ctx.arc(x, y, 3, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Подписи
   ctx.fillStyle = '#00ff99';
   ctx.font = '14px monospace';
-  ctx.fillText(currentSymbol, margin, margin - 10);
+  ctx.fillText(currentSymbol.toUpperCase(), margin, margin - 10);
   ctx.fillText(maxPrice.toFixed(2), 5, margin + 5);
   ctx.fillText(minPrice.toFixed(2), 5, canvas.height - margin);
 }
 
-// Запуск анимации графика
+let botInterval = null;
+let updateIntervalId = null;
+
+// Анимация
 function startChartAnimation() {
-  function animate(timestamp) {
-    if (!lastTimestamp) lastTimestamp = timestamp;
-    if (timestamp - lastTimestamp > 1000) { // Обновление каждую секунду
-      updateData();
-      drawChart();
-      lastTimestamp = timestamp;
-    }
-    animationId = requestAnimationFrame(animate);
-  }
-  animationId = requestAnimationFrame(animate);
+  if(updateIntervalId) clearInterval(updateIntervalId);
+  updateIntervalId = setInterval(async () => {
+    await updateData();
+    drawChart();
+  }, 5000); // обновление каждые 5 секунд
 }
 
-// Остановка анимации (если нужно)
 function stopChartAnimation() {
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
+  if(updateIntervalId) {
+    clearInterval(updateIntervalId);
+    updateIntervalId = null;
   }
 }
 
 // При смене монеты
-symbolSelect.addEventListener('change', e => {
+symbolSelect.addEventListener('change', async e => {
   currentSymbol = e.target.value;
   stopChartAnimation();
-  dataPoints = generateInitialData(currentSymbol);
+  await loadHistoricalData(currentSymbol);
   drawChart();
   startChartAnimation();
   updateBotMessages();
 });
 
-// Функция запуска бота — обновление прогнозов каждые 5 сек
-let botInterval = null;
+// Бот — обновляет прогнозы каждые 5 сек
 function startBot() {
   updateBotMessages();
+  if(botInterval) clearInterval(botInterval);
   botInterval = setInterval(updateBotMessages, 5000);
 }
 function stopBot() {
-  if (botInterval) {
+  if(botInterval) {
     clearInterval(botInterval);
     botInterval = null;
   }
 }
 
-// Обновление сообщений бота на странице
 function updateBotMessages() {
   const forecasts = botForecasts[currentSymbol] || ['Прогнозов нет.'];
   botMessagesUl.innerHTML = '';
-  // Выбираем случайные 3 прогноза
   let shuffled = forecasts.slice().sort(() => 0.5 - Math.random());
   let toShow = shuffled.slice(0, 3);
   toShow.forEach(text => {
@@ -419,12 +423,12 @@ function updateBotMessages() {
   });
 }
 
-// Многофункциональный пример функции (можно расширять)
+// Запускаем вспомогательную функцию каждую минуту (пример)
 function exampleHelperFunction() {
   console.log(`Helper: текущее время ${new Date().toLocaleTimeString()}`);
 }
-
-// Запускаем пример функции каждую минуту (демонстрация)
 setInterval(exampleHelperFunction, 60000);
-
 </script>
+
+</body>
+</html>
