@@ -1,66 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tradex App без TradingView</title>
-  <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%; background: #0e0e10; font-family: sans-serif; color: white;
-    }
-    #login-container {
-      height: 100vh; width: 100vw; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; background: #0e0e10;
-    }
-    #login-container input {
-      margin: 8px 0; padding: 10px; width: 200px; font-size: 16px;
-      border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: white;
-    }
-    #login-container button {
-      margin-top: 10px; padding: 10px 20px; font-size: 16px;
-      border-radius: 4px; border: none; background: #3a3a3a; color: white;
-      cursor: pointer;
-    }
-    #login-error {
-      margin-top: 10px; height: 20px; color: #f44336;
-    }
-    #loader {
-      display: none; height: 100vh; width: 100vw;
-      justify-content: center; align-items: center;
-      background: #0e0e10; color: white; font-size: 24px;
-    }
-    #graph-container {
-      display: none; height: 100vh; width: 100vw; position: relative;
-      padding: 20px;
-    }
-    #symbol-selector {
-      position: absolute; top: 20px; left: 20px;
-      background: rgba(20, 20, 20, 0.8); padding: 10px; border-radius: 4px;
-      border: 1px solid #444;
-      z-index: 10;
-    }
-    select {
-      background: #0e0e10; color: white; border: 1px solid #555;
-      border-radius: 4px; padding: 5px;
-    }
-    canvas {
-      background: #1a1a1a; border-radius: 8px;
-      max-width: 100%; max-height: 90vh;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tradex App с ботом и свечами</title>
+<style>
+  /* Общие стили */
+  body, html {
+    margin: 0; padding: 0; height: 100%; background: #0e0e10; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white; overflow: hidden;
+  }
+  /* Вход */
+  #login-container {
+    position: relative;
+    height: 100vh; width: 100vw;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: #0e0e10;
+    overflow: hidden;
+  }
+  #login-container h1 {
+    font-weight: 700; font-size: 3em; margin-bottom: 20px;
+    z-index: 10;
+    user-select: none;
+  }
+  #login-container input {
+    margin: 8px 0; padding: 10px; width: 250px; font-size: 16px;
+    border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: white;
+    z-index: 10;
+  }
+  #login-container button {
+    margin-top: 15px; padding: 12px 30px; font-size: 18px;
+    border-radius: 4px; border: none; background: #3a3a3a; color: white;
+    cursor: pointer; z-index: 10;
+    transition: background-color 0.3s ease;
+  }
+  #login-container button:hover {
+    background-color: #00ff99;
+    color: #000;
+  }
+  #login-error {
+    margin-top: 10px; height: 20px; color: #f44336; z-index: 10;
+  }
+  /* Анимация свечей на фоне */
+  #candles-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+
+  /* Лоадер */
+  #loader {
+    display: none;
+    height: 100vh; width: 100vw;
+    background: #0e0e10;
+    color: #00ff99;
+    font-size: 28px;
+    display: flex; justify-content: center; align-items: center;
+  }
+
+  /* Основной экран */
+  #main-container {
+    display: none;
+    height: 100vh; width: 100vw;
+    background: #0e0e10;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Левый бот */
+  #bot {
+    width: 300px;
+    background: #1a1a1a;
+    border-right: 1px solid #444;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #00ff99;
+    font-size: 16px;
+    overflow-y: auto;
+  }
+  #bot h2 {
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 15px;
+    user-select: none;
+  }
+  #bot p {
+    margin: 8px 0;
+  }
+
+  /* График и селектор */
+  #graph-section {
+    flex-grow: 1;
+    position: relative;
+    padding: 20px;
+  }
+  #symbol-selector {
+    position: absolute;
+    top: 20px; left: 20px;
+    z-index: 10;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 12px;
+    color: white;
+    user-select: none;
+  }
+  #symbol-selector label {
+    margin-right: 8px;
+    font-weight: 600;
+  }
+  #symbol-selector select {
+    background: #0e0e10;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 16px;
+  }
+  canvas {
+    background: #1a1a1a;
+    border-radius: 10px;
+    max-height: 90vh;
+    width: 100% !important;
+  }
+</style>
 </head>
 <body>
 
-  <div id="login-container">
-    <input id="login" type="text" placeholder="Login" autocomplete="off" />
-    <input id="password" type="password" placeholder="Password" autocomplete="off" />
-    <button id="login-btn">Sign In</button>
-    <div id="login-error"></div>
+<!-- Вход -->
+<div id="login-container">
+  <h1>Войти в Tradex</h1>
+  <input type="text" id="login" placeholder="Login" autocomplete="off" />
+  <input type="password" id="password" placeholder="Password" autocomplete="off" />
+  <button id="login-btn">Sign In</button>
+  <div id="login-error"></div>
+  <canvas id="candles-canvas"></canvas>
+</div>
+
+<!-- Лоадер -->
+<div id="loader">Tradex App Loading...</div>
+
+<!-- Основной интерфейс -->
+<div id="main-container">
+  <div id="bot">
+    <h2>Прогнозы бота</h2>
+    <div id="bot-messages"></div>
   </div>
-
-  <div id="loader">Tradex App Loading...</div>
-
-  <div id="graph-container">
+  <div id="graph-section">
     <div id="symbol-selector">
       <label for="symbol">Монета:</label>
       <select id="symbol">
@@ -74,104 +161,183 @@
     </div>
     <canvas id="chart"></canvas>
   </div>
+</div>
 
-  <!-- Подключаем Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const loginContainer = document.getElementById('login-container');
-    const loader = document.getElementById('loader');
-    const graphContainer = document.getElementById('graph-container');
-    const loginBtn = document.getElementById('login-btn');
-    const loginError = document.getElementById('login-error');
-    const symbolSelect = document.getElementById('symbol');
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    const validLogin = 'admin';
-    const validPassword = 'MODERATOR';
+<script>
+  // Данные для проверки логина
+  const validLogin = 'admin';
+  const validPassword = 'MODERATOR';
 
-    let chart = null;
+  // Элементы
+  const loginContainer = document.getElementById('login-container');
+  const loader = document.getElementById('loader');
+  const mainContainer = document.getElementById('main-container');
+  const loginBtn = document.getElementById('login-btn');
+  const loginError = document.getElementById('login-error');
+  const symbolSelect = document.getElementById('symbol');
+  const botMessages = document.getElementById('bot-messages');
 
-    loginBtn.addEventListener('click', () => {
-      const login = document.getElementById('login').value.trim();
-      const password = document.getElementById('password').value.trim();
+  let chart = null;
 
-      if(login === validLogin && password === validPassword) {
-        loginError.textContent = '';
-        loginContainer.style.display = 'none';
-        loader.style.display = 'flex';
+  // Обработка логина
+  loginBtn.addEventListener('click', () => {
+    const login = document.getElementById('login').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-        setTimeout(() => {
-          loader.style.display = 'none';
-          graphContainer.style.display = 'block';
-          loadChart(symbolSelect.value);
-        }, 2000);
-      } else {
-        loginError.textContent = 'Неверный логин или пароль';
-      }
-    });
+    if(login === validLogin && password === validPassword) {
+      loginError.textContent = '';
+      loginContainer.style.display = 'none';
+      loader.style.display = 'flex';
 
-    symbolSelect.addEventListener('change', () => {
-      loadChart(symbolSelect.value);
-    });
-
-    function loadChart(symbol) {
-      // Для демонстрации — создаём рандомные данные для графика
-      const labels = [];
-      const dataPoints = [];
-      const days = 30;
-
-      for(let i = days; i >= 1; i--) {
-        labels.push(`День -${i}`);
-        // Рандом цены в диапазоне в зависимости от символа
-        const base = {
-          BTC: 50000,
-          ETH: 3500,
-          SOL: 150,
-          XRP: 1,
-          DOGE: 0.25,
-          ADA: 2
-        };
-        const volatility = base[symbol] * 0.1;
-        dataPoints.push((base[symbol] + (Math.random() - 0.5) * volatility).toFixed(2));
-      }
-
-      if(chart) {
-        chart.destroy();
-      }
-
-      const ctx = document.getElementById('chart').getContext('2d');
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: `${symbol} Цена`,
-            data: dataPoints,
-            borderColor: '#00ff99',
-            backgroundColor: 'rgba(0,255,153,0.3)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: { color: 'white' }
-            },
-            x: {
-              ticks: { color: 'white' }
-            }
-          },
-          plugins: {
-            legend: {
-              labels: { color: 'white' }
-            }
-          }
-        }
-      });
+      setTimeout(() => {
+        loader.style.display = 'none';
+        mainContainer.style.display = 'flex';
+        loadChart(symbolSelect.value);
+        startBot();
+      }, 5000); // 5 секунд загрузки
+    } else {
+      loginError.textContent = 'Неверный логин или пароль';
     }
-  </script>
-</body>
-</html>
+  });
+
+  // Обновление графика при смене монеты
+  symbolSelect.addEventListener('change', () => {
+    loadChart(symbolSelect.value);
+  });
+
+  function loadChart(symbol) {
+    const labels = [];
+    const dataPoints = [];
+    const days = 30;
+
+    const base = {
+      BTC: 50000,
+      ETH: 3500,
+      SOL: 150,
+      XRP: 1,
+      DOGE: 0.25,
+      ADA: 2
+    };
+
+    for(let i = days; i >= 1; i--) {
+      labels.push(`День -${i}`);
+      const volatility = base[symbol] * 0.1;
+      dataPoints.push((base[symbol] + (Math.random() - 0.5) * volatility).toFixed(2));
+    }
+
+    if(chart) {
+      chart.destroy();
+    }
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `${symbol} Цена`,
+          data: dataPoints,
+          borderColor: '#00ff99',
+          backgroundColor: 'rgba(0,255,153,0.3)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: false, ticks: { color: 'white' }},
+          x: { ticks: { color: 'white' }}
+        },
+        plugins: { legend: { labels: { color: 'white' }}}
+      }
+    });
+  }
+
+  // Простой мини-бот прогнозов
+  const botForecasts = [
+    'BTC вырастет на 5% в ближайшие 24 часа.',
+    'ETH ожидает коррекцию, будьте осторожны.',
+    'SOL может показать рост после обновления сети.',
+    'XRP стабилен, ожидается консолидация.',
+    'DOGE может удивить новыми максимумами.',
+    'ADA будет расти в долгосрочной перспективе.',
+    'Рынок в целом позитивный, хорошее время для инвестиций.',
+    'Некоторая волатильность ожидается в ближайшие дни.',
+    'Следите за новостями по BTC для своевременных решений.',
+    'ETH может столкнуться с сопротивлением на уровне $3600.'
+  ];
+
+  function startBot() {
+    botMessages.innerHTML = '';
+    showBotMessage();
+    setInterval(showBotMessage, 7000);
+  }
+
+  function showBotMessage() {
+    const msg = botForecasts[Math.floor(Math.random() * botForecasts.length)];
+    const p = document.createElement('p');
+    p.textContent = msg;
+    botMessages.appendChild(p);
+    botMessages.scrollTop = botMessages.scrollHeight;
+  }
+
+  // Анимация свечей на фоне экрана входа
+  const canvas = document.getElementById('candles-canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Candle {
+    constructor(x) {
+      this.x = x;
+      this.baseY = height * 0.8;
+      this.width = 8;
+      this.height = 50 + Math.random() * 70;
+      this.colorGreen = '#00ff99';
+      this.colorRed = '#ff3860';
+      this.isGreen = Math.random() > 0.5;
+      this.speed = 0.5 + Math.random();
+      this.phase = Math.random() * Math.PI * 2;
+    }
+    draw(ctx) {
+      // Колебание свечи по высоте (анимация)
+      const flicker = Math.sin(Date.now() / 300 + this.phase) * 5;
+      const h = this.height + flicker;
+
+      ctx.fillStyle = this.isGreen ? this.colorGreen : this.colorRed;
+      // Тело свечи
+      ctx.fillRect(this.x, this.baseY - h, this.width, h);
+
+      // Фитиль (верхний и нижний)
+      const wickHeight = 10;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Верхний фитиль
+      ctx.moveTo(this.x + this.width/2, this.baseY - h);
+      ctx.lineTo(this.x + this.width/2, this.baseY - h - wickHeight);
+      // Нижний фитиль
+      ctx.moveTo(this.x + this.width/2, this.baseY);
+      ctx.lineTo(this.x + this.width/2, this.baseY + wickHeight / 2);
+      ctx.stroke();
+    }
+    update() {
+      // Можно добавить движение или другие эффекты
+    }
+  }
+
+  const candles = [];
+  const candleCount = Math.floor(window.innerWidth / 15);
+  for(let i=0; i < candleCount; i++) {
+    candles.push(new Candle(i *
