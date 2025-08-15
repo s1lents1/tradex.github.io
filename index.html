@@ -340,4 +340,20 @@
   const candles = [];
   const candleCount = Math.floor(window.innerWidth / 15);
   for(let i=0; i < candleCount; i++) {
-    candles.push(new Candle(i *
+    candles.push(new Candle(i * 15 + 10));
+  }
+
+  function animateCandles() {
+    ctx.clearRect(0, 0, width, height);
+    candles.forEach(c => {
+      c.draw(ctx);
+      c.update();
+    });
+    requestAnimationFrame(animateCandles);
+  }
+
+  animateCandles();
+
+</script>
+</body>
+</html>
