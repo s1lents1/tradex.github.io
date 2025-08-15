@@ -3,242 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tradex App</title>
+  <title>Tradex App без TradingView</title>
   <style>
     body, html {
-      margin: 0; padding: 0; height: 100%;
-      background-color: #0e0e10;
-      font-family: sans-serif;
-      color: white;
+      margin: 0; padding: 0; height: 100%; background: #0e0e10; font-family: sans-serif; color: white;
     }
     #login-container {
-      height: 100vh; width: 100vw;
-      display: flex; align-items: center; justify-content: center;
-      background-color: #0e0e10;
-      flex-direction: column;
+      height: 100vh; width: 100vw; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; background: #0e0e10;
     }
     #login-container input {
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #555;
-      background-color: #1a1a1a;
-      color: white;
-      width: 200px;
-      font-size: 16px;
+      margin: 8px 0; padding: 10px; width: 200px; font-size: 16px;
+      border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: white;
     }
     #login-container button {
-      padding: 10px 20px;
-      background-color: #3a3a3a;
-      border: none;
-      border-radius: 4px;
-      color: white;
+      margin-top: 10px; padding: 10px 20px; font-size: 16px;
+      border-radius: 4px; border: none; background: #3a3a3a; color: white;
       cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
     }
     #login-error {
-      color: #f44336;
-      margin-top: 10px;
-      height: 20px;
+      margin-top: 10px; height: 20px; color: #f44336;
     }
     #loader {
-      height: 100vh; width: 100vw;
-      display: none;
-      align-items: center; justify-content: center;
-      background-color: #0e0e10;
-      flex-direction: column;
+      display: none; height: 100vh; width: 100vw;
+      justify-content: center; align-items: center;
+      background: #0e0e10; color: white; font-size: 24px;
     }
-    .ui-abstergo {
-      --primary: #fff;
-      --secondary: rgba(255, 255, 255, 0.3);
-      --shadow-blur: 3px;
-      --text-shadow-blur: 3px;
-      --animation-duration: 2s;
-      --size: 1;
-    
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      row-gap: 30px;
-      scale: var(--size);
-      color: var(--primary);
-    }
-    .abstergo-loader {
-      width: 103px;
-      height: 90px;
-      position: relative;
-    }
-    .abstergo-loader div {
-      width: 50px;
-      border-right: 12px solid transparent;
-      border-left: 12px solid transparent;
-      border-top: 21px solid var(--primary);
-      position: absolute;
-      filter: drop-shadow(0 0 var(--shadow-blur) var(--secondary));
-    }
-    .abstergo-loader div:nth-child(1) {
-      top: 27px;
-      left: 7px;
-      rotate: -60deg;
-      animation: line1 var(--animation-duration) linear infinite alternate;
-    }
-    .abstergo-loader div:nth-child(2) {
-      bottom: 2px;
-      left: 0;
-      rotate: 180deg;
-      animation: line2 var(--animation-duration) linear infinite alternate;
-    }
-    .abstergo-loader div:nth-child(3) {
-      bottom: 16px;
-      right: -9px;
-      rotate: 60deg;
-      animation: line3 var(--animation-duration) linear infinite alternate;
-    }
-    .abstergo-loader:hover div:nth-child(1) {
-      top: 21px;
-      left: 14px;
-      rotate: 60deg;
-    }
-    .abstergo-loader:hover div:nth-child(2) {
-      bottom: 5px;
-      left: -8px;
-      rotate: 300deg;
-    }
-    .abstergo-loader:hover div:nth-child(3) {
-      bottom: 7px;
-      right: -11px;
-      rotate: 180deg;
-    }
-    @keyframes line1 {
-      0%, 40% {
-        top: 27px;
-        left: 7px;
-        rotate: -60deg;
-      }
-      60%, 100% {
-        top: 22px;
-        left: 14px;
-        rotate: 60deg;
-      }
-    }
-    @keyframes line2 {
-      0%, 40% {
-        bottom: 2px;
-        left: 0;
-        rotate: 180deg;
-      }
-      60%, 100% {
-        bottom: 5px;
-        left: -8px;
-        rotate: 300deg;
-      }
-    }
-    @keyframes line3 {
-      0%, 40% {
-        bottom: 16px;
-        right: -9px;
-        rotate: 60deg;
-      }
-      60%, 100% {
-        bottom: 7px;
-        right: -11px;
-        rotate: 180deg;
-      }
-    }
-    .ui-text {
-      color: var(--primary);
-      text-shadow: 0 0 var(--text-shadow-blur) var(--secondary);
-      font-family: Menlo, monospace;
-      display: flex;
-      align-items: baseline;
-      column-gap: 3px;
-    }
-    .ui-dot {
-      content: "";
-      display: block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      animation: dots var(--animation-duration) infinite linear;
-      animation-delay: .4s;
-      background-color: var(--primary);
-    }
-    .ui-dot:nth-child(2) {
-      animation-delay: .8s;
-    }
-    .ui-dot:nth-child(3) {
-      animation-delay: 1.2s;
-    }
-    .ui-dot + .ui-dot {
-      margin-left: 5px;
-    }
-    @keyframes dots {
-      0% {
-        background-color: var(--secondary);
-      }
-      30% {
-        background-color: var(--primary);
-      }
-      70%, 100% {
-        background-color: var(--secondary);
-      }
-    }
-
     #graph-container {
-      display: none;
-      height: 100vh; width: 100vw;
+      display: none; height: 100vh; width: 100vw; position: relative;
       padding: 20px;
-      box-sizing: border-box;
-      background-color: #0e0e10;
     }
     #symbol-selector {
-      margin-bottom: 20px;
-      background-color: rgba(20, 20, 20, 0.8);
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(20, 20, 20, 0.8); padding: 10px; border-radius: 4px;
       border: 1px solid #444;
-      color: white;
-      padding: 10px;
-      border-radius: 4px;
-      width: fit-content;
+      z-index: 10;
     }
     select {
-      background-color: #0e0e10;
-      color: white;
-      border: 1px solid #555;
-      padding: 5px;
-      border-radius: 4px;
+      background: #0e0e10; color: white; border: 1px solid #555;
+      border-radius: 4px; padding: 5px;
     }
     canvas {
-      background-color: #121212;
-      border-radius: 8px;
-      display: block;
-      max-width: 100%;
-      height: 400px;
+      background: #1a1a1a; border-radius: 8px;
+      max-width: 100%; max-height: 90vh;
     }
   </style>
 </head>
 <body>
 
   <div id="login-container">
-    <input type="text" id="login" placeholder="Login" autocomplete="off" />
-    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+    <input id="login" type="text" placeholder="Login" autocomplete="off" />
+    <input id="password" type="password" placeholder="Password" autocomplete="off" />
     <button id="login-btn">Sign In</button>
     <div id="login-error"></div>
   </div>
 
-  <div id="loader" class="ui-abstergo">
-    <div class="abstergo-loader">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <div class="ui-text">
-      <span>Tradex App Loading</span>
-      <span class="ui-dot"></span>
-      <span class="ui-dot"></span>
-      <span class="ui-dot"></span>
-    </div>
-  </div>
+  <div id="loader">Tradex App Loading...</div>
 
   <div id="graph-container">
     <div id="symbol-selector">
@@ -255,101 +75,103 @@
     <canvas id="chart"></canvas>
   </div>
 
-  <!-- Подключаем Chart.js с CDN -->
+  <!-- Подключаем Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const loginContainer = document.getElementById('login-container');
-      const loader = document.getElementById('loader');
-      const graphContainer = document.getElementById('graph-container');
-      const loginBtn = document.getElementById('login-btn');
-      const loginError = document.getElementById('login-error');
-      const symbolSelect = document.getElementById('symbol');
-      const ctx = document.getElementById('chart').getContext('2d');
+    const loginContainer = document.getElementById('login-container');
+    const loader = document.getElementById('loader');
+    const graphContainer = document.getElementById('graph-container');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+    const symbolSelect = document.getElementById('symbol');
 
-      const validLogin = 'admin';
-      const validPassword = 'MODERATOR';
+    const validLogin = 'admin';
+    const validPassword = 'MODERATOR';
 
-      // Пример данных для разных монет (просто заглушки)
-      const dataMap = {
-        BTC: [40000, 41000, 42000, 41500, 43000, 44000, 45000],
-        ETH: [2500, 2600, 2550, 2700, 2750, 2800, 2900],
-        SOL: [100, 110, 105, 115, 120, 125, 130],
-        XRP: [0.7, 0.75, 0.72, 0.78, 0.8, 0.82, 0.85],
-        DOGE: [0.25, 0.27, 0.26, 0.28, 0.29, 0.3, 0.32],
-        ADA: [1.1, 1.15, 1.12, 1.2, 1.22, 1.25, 1.3]
-      };
+    let chart = null;
 
-      const labels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    loginBtn.addEventListener('click', () => {
+      const login = document.getElementById('login').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      let chart = null;
+      if(login === validLogin && password === validPassword) {
+        loginError.textContent = '';
+        loginContainer.style.display = 'none';
+        loader.style.display = 'flex';
 
-      function renderChart(symbol) {
-        const prices = dataMap[symbol] || [];
-        if (chart) {
-          chart.destroy();
-        }
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [{
-              label: symbol,
-              data: prices,
-              borderColor: '#4caf50',
-              backgroundColor: 'rgba(76, 175, 80, 0.3)',
-              fill: true,
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              x: {
-                grid: {
-                  color: '#222'
-                },
-                ticks: { color: 'white' }
-              },
-              y: {
-                grid: {
-                  color: '#222'
-                },
-                ticks: { color: 'white' }
-              }
-            },
-            plugins: {
-              legend: { labels: { color: 'white' } }
-            }
-          }
-        });
+        setTimeout(() => {
+          loader.style.display = 'none';
+          graphContainer.style.display = 'block';
+          loadChart(symbolSelect.value);
+        }, 2000);
+      } else {
+        loginError.textContent = 'Неверный логин или пароль';
+      }
+    });
+
+    symbolSelect.addEventListener('change', () => {
+      loadChart(symbolSelect.value);
+    });
+
+    function loadChart(symbol) {
+      // Для демонстрации — создаём рандомные данные для графика
+      const labels = [];
+      const dataPoints = [];
+      const days = 30;
+
+      for(let i = days; i >= 1; i--) {
+        labels.push(`День -${i}`);
+        // Рандом цены в диапазоне в зависимости от символа
+        const base = {
+          BTC: 50000,
+          ETH: 3500,
+          SOL: 150,
+          XRP: 1,
+          DOGE: 0.25,
+          ADA: 2
+        };
+        const volatility = base[symbol] * 0.1;
+        dataPoints.push((base[symbol] + (Math.random() - 0.5) * volatility).toFixed(2));
       }
 
-      loginBtn.addEventListener('click', () => {
-        const login = document.getElementById('login').value.trim();
-        const password = document.getElementById('password').value.trim();
+      if(chart) {
+        chart.destroy();
+      }
 
-        if (login === validLogin && password === validPassword) {
-          loginError.textContent = '';
-          loginContainer.style.display = 'none';
-          loader.style.display = 'flex';
-
-          setTimeout(() => {
-            loader.style.display = 'none';
-            graphContainer.style.display = 'block';
-            renderChart(symbolSelect.value);
-          }, 3000);
-        } else {
-          loginError.textContent = 'Неверный логин или пароль';
+      const ctx = document.getElementById('chart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `${symbol} Цена`,
+            data: dataPoints,
+            borderColor: '#00ff99',
+            backgroundColor: 'rgba(0,255,153,0.3)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: { color: 'white' }
+            },
+            x: {
+              ticks: { color: 'white' }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: 'white' }
+            }
+          }
         }
       });
-
-      symbolSelect.addEventListener('change', (e) => {
-        renderChart(e.target.value);
-      });
-    });
+    }
   </script>
 </body>
 </html>
