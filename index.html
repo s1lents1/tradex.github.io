@@ -13,23 +13,55 @@
       background-color: #0e0e10;
       font-family: sans-serif;
     }
-
-    #loader {
+    #login-container {
       height: 100vh;
       width: 100vw;
       display: flex;
       align-items: center;
       justify-content: center;
       background-color: #0e0e10;
+      flex-direction: column;
+      color: white;
     }
-
+    #login-container input {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background-color: #1a1a1a;
+      color: white;
+      width: 200px;
+      font-size: 16px;
+    }
+    #login-container button {
+      padding: 10px 20px;
+      background-color: #3a3a3a;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #login-error {
+      color: #f44336;
+      margin-top: 10px;
+      height: 20px;
+    }
+    #loader {
+      height: 100vh;
+      width: 100vw;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background-color: #0e0e10;
+    }
     #graph-container {
       display: none;
       height: 100vh;
       width: 100vw;
       position: relative;
     }
-
     #symbol-selector {
       position: absolute;
       top: 20px;
@@ -41,7 +73,6 @@
       padding: 10px;
       border-radius: 4px;
     }
-
     select {
       background-color: #0e0e10;
       color: white;
@@ -49,7 +80,6 @@
       padding: 5px;
       border-radius: 4px;
     }
-
     #tradingview_cryptochart {
       height: 100%;
       width: 100%;
@@ -58,7 +88,13 @@
 </head>
 <body>
 
-  <!-- 🔄 Лоадер -->
+  <div id="login-container">
+    <input type="text" id="login" placeholder="Login" autocomplete="off" />
+    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+    <button id="login-btn">Sign In</button>
+    <div id="login-error"></div>
+  </div>
+
   <div id="loader" class="ui-abstergo">
     <div class="abstergo-loader">
       <div></div>
@@ -73,9 +109,7 @@
     </div>
   </div>
 
-  <!-- 📈 График -->
   <div id="graph-container">
-    <!-- Выбор монеты -->
     <div id="symbol-selector">
       <label for="symbol">Монета:</label>
       <select id="symbol">
@@ -91,47 +125,60 @@
     <div id="tradingview_cryptochart"></div>
   </div>
 
-  <!-- 📜 Скрипты -->
   <script src="https://s3.tradingview.com/tv.js"></script>
   <script>
-    let widget = null;
+    const loginContainer = document.getElementById('login-container');
+    const loader = document.getElementById('loader');
+    const graphContainer = document.getElementById('graph-container');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
 
+    const validLogin = 'admin';
+    const validPassword = 'MODERATOR';
+
+    loginBtn.addEventListener('click', () => {
+      const login = document.getElementById('login').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (login === validLogin && password === validPassword) {
+        loginError.textContent = '';
+        loginContainer.style.display = 'none';
+        loader.style.display = 'flex';
+
+        setTimeout(() => {
+          loader.style.display = 'none';
+          graphContainer.style.display = 'block';
+          loadChart(document.getElementById('symbol').value);
+        }, 3000);
+      } else {
+        loginError.textContent = 'Неверный логин или пароль';
+      }
+    });
+
+    let widget = null;
     function loadChart(symbol) {
       if (widget) {
         widget.remove();
       }
-
       widget = new TradingView.widget({
-        "width": "100%",
-        "height": "100%",
-        "symbol": symbol,
-        "interval": "D",
-        "timezone": "Etc/UTC",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "toolbar_bg": "#0e0e10",
-        "enable_publishing": false,
-        "hide_top_toolbar": false,
-        "save_image": false,
-        "container_id": "tradingview_cryptochart"
+        width: '100%',
+        height: '100%',
+        symbol: symbol,
+        interval: 'D',
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        toolbar_bg: '#0e0e10',
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        save_image: false,
+        container_id: 'tradingview_cryptochart',
       });
     }
 
-    // Через 5 секунд показать график
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
-      document.getElementById("graph-container").style.display = "block";
-
-      // Загрузить график по умолчанию
-      const defaultSymbol = document.getElementById("symbol").value;
-      loadChart(defaultSymbol);
-    }, 5000);
-
-    // Обработка смены монеты
-    document.getElementById("symbol").addEventListener("change", (e) => {
-      const selectedSymbol = e.target.value;
-      loadChart(selectedSymbol);
+    document.getElementById('symbol').addEventListener('change', (e) => {
+      loadChart(e.target.value);
     });
   </script>
 </body>
