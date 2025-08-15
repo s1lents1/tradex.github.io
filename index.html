@@ -1,359 +1,430 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tradex App с ботом и свечами</title>
+<title>Tradex App</title>
 <style>
-  /* Общие стили */
   body, html {
-    margin: 0; padding: 0; height: 100%; background: #0e0e10; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white; overflow: hidden;
+    margin: 0; padding: 0; height: 100%; background-color: #0e0e10; font-family: sans-serif; color: white;
   }
-  /* Вход */
   #login-container {
-    position: relative;
     height: 100vh; width: 100vw;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    background: #0e0e10;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background-color: #0e0e10; flex-direction: column;
   }
   #login-container h1 {
-    font-weight: 700; font-size: 3em; margin-bottom: 20px;
-    z-index: 10;
-    user-select: none;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 1.5px;
   }
   #login-container input {
-    margin: 8px 0; padding: 10px; width: 250px; font-size: 16px;
-    border-radius: 4px; border: 1px solid #555; background: #1a1a1a; color: white;
-    z-index: 10;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #1a1a1a;
+    color: white;
+    width: 200px;
+    font-size: 16px;
   }
   #login-container button {
-    margin-top: 15px; padding: 12px 30px; font-size: 18px;
-    border-radius: 4px; border: none; background: #3a3a3a; color: white;
-    cursor: pointer; z-index: 10;
-    transition: background-color 0.3s ease;
-  }
-  #login-container button:hover {
-    background-color: #00ff99;
-    color: #000;
+    padding: 10px 20px;
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
   }
   #login-error {
-    margin-top: 10px; height: 20px; color: #f44336; z-index: 10;
+    color: #f44336;
+    margin-top: 10px;
+    height: 20px;
   }
-  /* Анимация свечей на фоне */
-  #candles-canvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 1;
-  }
-
-  /* Лоадер */
   #loader {
-    display: none;
     height: 100vh; width: 100vw;
-    background: #0e0e10;
-    color: #00ff99;
-    font-size: 28px;
-    display: flex; justify-content: center; align-items: center;
+    display: none;
+    align-items: center; justify-content: center;
+    background-color: #0e0e10;
+    flex-direction: column;
+    font-size: 20px;
+    letter-spacing: 2px;
   }
-
-  /* Основной экран */
-  #main-container {
-    display: none;
-    height: 100vh; width: 100vw;
-    background: #0e0e10;
+  .abstergo-loader {
     display: flex;
-    overflow: hidden;
+    gap: 10px;
   }
-
-  /* Левый бот */
-  #bot {
-    width: 300px;
-    background: #1a1a1a;
-    border-right: 1px solid #444;
-    padding: 20px;
-    box-sizing: border-box;
-    color: #00ff99;
-    font-size: 16px;
-    overflow-y: auto;
+  .abstergo-loader div {
+    width: 15px; height: 15px;
+    background: #00ff99;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite ease-in-out;
   }
-  #bot h2 {
-    margin-top: 0;
-    text-align: center;
-    margin-bottom: 15px;
-    user-select: none;
+  .abstergo-loader div:nth-child(2) {
+    animation-delay: 0.3s;
   }
-  #bot p {
-    margin: 8px 0;
+  .abstergo-loader div:nth-child(3) {
+    animation-delay: 0.6s;
   }
-
-  /* График и селектор */
-  #graph-section {
-    flex-grow: 1;
+  @keyframes pulse {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+  #app {
+    display: none;
+    height: 100vh; width: 100vw;
+    background-color: #0e0e10;
     position: relative;
-    padding: 20px;
+    overflow: hidden;
   }
   #symbol-selector {
     position: absolute;
-    top: 20px; left: 20px;
-    z-index: 10;
-    background: rgba(20, 20, 20, 0.9);
+    top: 15px; left: 15px;
+    background: rgba(20,20,20,0.85);
     border: 1px solid #444;
     border-radius: 6px;
     padding: 12px;
-    color: white;
-    user-select: none;
+    z-index: 10;
   }
-  #symbol-selector label {
-    margin-right: 8px;
+  #symbol-selector label, select {
+    color: white;
     font-weight: 600;
+    font-size: 14px;
   }
-  #symbol-selector select {
+  select {
+    margin-left: 8px;
     background: #0e0e10;
-    color: white;
     border: 1px solid #555;
     border-radius: 4px;
-    padding: 6px;
-    font-size: 16px;
+    padding: 4px 8px;
+    color: white;
   }
-  canvas {
-    background: #1a1a1a;
-    border-radius: 10px;
-    max-height: 90vh;
-    width: 100% !important;
+  #chart-canvas {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+  }
+  #bot {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 8px;
+    padding: 15px;
+    width: 260px;
+    font-size: 14px;
+    color: #00ff99;
+    box-shadow: 0 0 12px #00ff99aa;
+    user-select: none;
+  }
+  #bot h2 {
+    margin: 0 0 12px 0;
+    font-weight: 700;
+    font-size: 18px;
+    color: #00ffaa;
+  }
+  #bot ul {
+    list-style: none;
+    padding: 0; margin: 0;
+  }
+  #bot ul li {
+    margin-bottom: 10px;
+    line-height: 1.3;
   }
 </style>
 </head>
 <body>
 
-<!-- Вход -->
 <div id="login-container">
   <h1>Войти в Tradex</h1>
   <input type="text" id="login" placeholder="Login" autocomplete="off" />
   <input type="password" id="password" placeholder="Password" autocomplete="off" />
   <button id="login-btn">Sign In</button>
   <div id="login-error"></div>
-  <canvas id="candles-canvas"></canvas>
 </div>
 
-<!-- Лоадер -->
-<div id="loader">Tradex App Loading...</div>
+<div id="loader">
+  <div class="abstergo-loader">
+    <div></div><div></div><div></div>
+  </div>
+  <div style="margin-top:15px;">Tradex App Loading</div>
+</div>
 
-<!-- Основной интерфейс -->
-<div id="main-container">
+<div id="app">
+  <div id="symbol-selector">
+    <label for="symbol">Монета:</label>
+    <select id="symbol">
+      <option value="BTC">Bitcoin (BTC)</option>
+      <option value="ETH">Ethereum (ETH)</option>
+      <option value="SOL">Solana (SOL)</option>
+      <option value="XRP">XRP</option>
+      <option value="DOGE">Dogecoin (DOGE)</option>
+      <option value="ADA">Cardano (ADA)</option>
+    </select>
+  </div>
+  <canvas id="chart-canvas"></canvas>
   <div id="bot">
     <h2>Прогнозы бота</h2>
-    <div id="bot-messages"></div>
-  </div>
-  <div id="graph-section">
-    <div id="symbol-selector">
-      <label for="symbol">Монета:</label>
-      <select id="symbol">
-        <option value="BTC">Bitcoin (BTC)</option>
-        <option value="ETH">Ethereum (ETH)</option>
-        <option value="SOL">Solana (SOL)</option>
-        <option value="XRP">XRP</option>
-        <option value="DOGE">Dogecoin (DOGE)</option>
-        <option value="ADA">Cardano (ADA)</option>
-      </select>
-    </div>
-    <canvas id="chart"></canvas>
+    <ul id="bot-messages">
+      <!-- Здесь будут прогнозы -->
+    </ul>
   </div>
 </div>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-  // Данные для проверки логина
-  const validLogin = 'admin';
-  const validPassword = 'MODERATOR';
+const loginContainer = document.getElementById('login-container');
+const loader = document.getElementById('loader');
+const app = document.getElementById('app');
+const loginBtn = document.getElementById('login-btn');
+const loginError = document.getElementById('login-error');
+const symbolSelect = document.getElementById('symbol');
+const canvas = document.getElementById('chart-canvas');
+const ctx = canvas.getContext('2d');
+const botMessagesUl = document.getElementById('bot-messages');
 
-  // Элементы
-  const loginContainer = document.getElementById('login-container');
-  const loader = document.getElementById('loader');
-  const mainContainer = document.getElementById('main-container');
-  const loginBtn = document.getElementById('login-btn');
-  const loginError = document.getElementById('login-error');
-  const symbolSelect = document.getElementById('symbol');
-  const botMessages = document.getElementById('bot-messages');
+const validLogin = 'admin';
+const validPassword = 'MODERATOR';
 
-  let chart = null;
+let dataPoints = [];
+let animationId = null;
+let currentSymbol = symbolSelect.value;
+let lastTimestamp = 0;
 
-  // Обработка логина
-  loginBtn.addEventListener('click', () => {
-    const login = document.getElementById('login').value.trim();
-    const password = document.getElementById('password').value.trim();
+const botForecasts = {
+  BTC: [
+    'BTC растет, возможен откат.',
+    'Покупка по текущей цене — рискованно.',
+    'Ожидается сильное движение вверх.',
+    'Цена может зафиксировать уровень поддержки.',
+  ],
+  ETH: [
+    'ETH стабилизируется, можно ждать входа.',
+    'Высокая волатильность сегодня.',
+    'Ожидается рост на новостях.',
+    'Возможен небольшой спад перед ростом.',
+  ],
+  SOL: [
+    'SOL демонстрирует силу, держать позиции.',
+    'Скоро может быть коррекция.',
+    'Идеальное время для покупки.',
+    'Прогноз — боковой тренд.',
+  ],
+  XRP: [
+    'XRP может пробить сопротивление.',
+    'Будьте осторожны, возможен флэт.',
+    'Позитивный настрой рынка.',
+    'Краткосрочная фиксация прибыли возможна.',
+  ],
+  DOGE: [
+    'DOGE нестабилен, играть осторожно.',
+    'Ожидается всплеск активности.',
+    'Можно рассматривать для краткосрочных сделок.',
+    'Риск высок, рекомендуем наблюдать.',
+  ],
+  ADA: [
+    'ADA укрепляет позиции.',
+    'Небольшая коррекция — нормальное явление.',
+    'Рост на фоне позитивных новостей.',
+    'Текущий уровень — хороший вход.',
+  ],
+};
 
-    if(login === validLogin && password === validPassword) {
-      loginError.textContent = '';
-      loginContainer.style.display = 'none';
-      loader.style.display = 'flex';
+// Автоматический вход по нажатию Enter на любом поле
+document.getElementById('login').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loginBtn.click();
+});
+document.getElementById('password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loginBtn.click();
+});
 
-      setTimeout(() => {
-        loader.style.display = 'none';
-        mainContainer.style.display = 'flex';
-        loadChart(symbolSelect.value);
-        startBot();
-      }, 5000); // 5 секунд загрузки
-    } else {
-      loginError.textContent = 'Неверный логин или пароль';
+// Функция входа
+loginBtn.addEventListener('click', () => {
+  const login = document.getElementById('login').value.trim();
+  const password = document.getElementById('password').value.trim();
+  if (login === validLogin && password === validPassword) {
+    loginError.textContent = '';
+    loginContainer.style.display = 'none';
+    loader.style.display = 'flex';
+    setTimeout(() => {
+      loader.style.display = 'none';
+      app.style.display = 'block';
+      initCanvas();
+      startBot();
+      startChartAnimation();
+    }, 5000); // 5 секунд лоадера
+  } else {
+    loginError.textContent = 'Неверный логин или пароль';
+  }
+});
+
+// Функция инициализации canvas (размеры под окно)
+function initCanvas() {
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  dataPoints = generateInitialData(currentSymbol);
+}
+
+// Меняем размер холста под размер окна
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+// Генерация стартовых данных для графика (случайная синусоида с шумом)
+function generateInitialData(symbol) {
+  let baseValue = getBasePrice(symbol);
+  let points = [];
+  const count = 200;
+  for (let i = 0; i < count; i++) {
+    // Синусоида с шумом
+    let val = baseValue + Math.sin(i / 10) * baseValue * 0.03 + (Math.random() - 0.5) * baseValue * 0.02;
+    points.push(val);
+  }
+  return points;
+}
+
+// Базовая цена для монеты (примерные)
+function getBasePrice(symbol) {
+  switch (symbol) {
+    case 'BTC': return 30000;
+    case 'ETH': return 1800;
+    case 'SOL': return 35;
+    case 'XRP': return 0.6;
+    case 'DOGE': return 0.07;
+    case 'ADA': return 1.1;
+    default: return 100;
+  }
+}
+
+// Обновление графика — сдвигаем данные и рисуем
+function updateData() {
+  // Убираем первый элемент
+  dataPoints.shift();
+  // Добавляем новый с небольшими изменениями от последнего
+  let last = dataPoints[dataPoints.length - 1];
+  let change = (Math.random() - 0.5) * getBasePrice(currentSymbol) * 0.01; // ±1% изменения
+  let newVal = Math.max(0, last + change);
+  dataPoints.push(newVal);
+}
+
+// Рисуем график на canvas (свечи упрощенно)
+function drawChart() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0e0e10';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Отрисуем ось Y
+  const maxPrice = Math.max(...dataPoints);
+  const minPrice = Math.min(...dataPoints);
+  const margin = 50;
+  const height = canvas.height - 2 * margin;
+  const width = canvas.width - 2 * margin;
+
+  ctx.strokeStyle = '#444';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(margin, margin);
+  ctx.lineTo(margin, canvas.height - margin);
+  ctx.lineTo(canvas.width - margin, canvas.height - margin);
+  ctx.stroke();
+
+  // Рисуем свечи - сделаем простым графиком линий с точками
+  ctx.strokeStyle = '#00ff99';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < dataPoints.length; i++) {
+    const x = margin + (i / dataPoints.length) * width;
+    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice));
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Рисуем точки
+  ctx.fillStyle = '#00ff99';
+  for (let i = 0; i < dataPoints.length; i += 10) {
+    const x = margin + (i / dataPoints.length) * width;
+    const y = margin + height * (1 - (dataPoints[i] - minPrice) / (maxPrice - minPrice));
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Подписи
+  ctx.fillStyle = '#00ff99';
+  ctx.font = '14px monospace';
+  ctx.fillText(currentSymbol, margin, margin - 10);
+  ctx.fillText(maxPrice.toFixed(2), 5, margin + 5);
+  ctx.fillText(minPrice.toFixed(2), 5, canvas.height - margin);
+}
+
+// Запуск анимации графика
+function startChartAnimation() {
+  function animate(timestamp) {
+    if (!lastTimestamp) lastTimestamp = timestamp;
+    if (timestamp - lastTimestamp > 1000) { // Обновление каждую секунду
+      updateData();
+      drawChart();
+      lastTimestamp = timestamp;
     }
+    animationId = requestAnimationFrame(animate);
+  }
+  animationId = requestAnimationFrame(animate);
+}
+
+// Остановка анимации (если нужно)
+function stopChartAnimation() {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+
+// При смене монеты
+symbolSelect.addEventListener('change', e => {
+  currentSymbol = e.target.value;
+  stopChartAnimation();
+  dataPoints = generateInitialData(currentSymbol);
+  drawChart();
+  startChartAnimation();
+  updateBotMessages();
+});
+
+// Функция запуска бота — обновление прогнозов каждые 5 сек
+let botInterval = null;
+function startBot() {
+  updateBotMessages();
+  botInterval = setInterval(updateBotMessages, 5000);
+}
+function stopBot() {
+  if (botInterval) {
+    clearInterval(botInterval);
+    botInterval = null;
+  }
+}
+
+// Обновление сообщений бота на странице
+function updateBotMessages() {
+  const forecasts = botForecasts[currentSymbol] || ['Прогнозов нет.'];
+  botMessagesUl.innerHTML = '';
+  // Выбираем случайные 3 прогноза
+  let shuffled = forecasts.slice().sort(() => 0.5 - Math.random());
+  let toShow = shuffled.slice(0, 3);
+  toShow.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    botMessagesUl.appendChild(li);
   });
+}
 
-  // Обновление графика при смене монеты
-  symbolSelect.addEventListener('change', () => {
-    loadChart(symbolSelect.value);
-  });
+// Многофункциональный пример функции (можно расширять)
+function exampleHelperFunction() {
+  console.log(`Helper: текущее время ${new Date().toLocaleTimeString()}`);
+}
 
-  function loadChart(symbol) {
-    const labels = [];
-    const dataPoints = [];
-    const days = 30;
-
-    const base = {
-      BTC: 50000,
-      ETH: 3500,
-      SOL: 150,
-      XRP: 1,
-      DOGE: 0.25,
-      ADA: 2
-    };
-
-    for(let i = days; i >= 1; i--) {
-      labels.push(`День -${i}`);
-      const volatility = base[symbol] * 0.1;
-      dataPoints.push((base[symbol] + (Math.random() - 0.5) * volatility).toFixed(2));
-    }
-
-    if(chart) {
-      chart.destroy();
-    }
-
-    const ctx = document.getElementById('chart').getContext('2d');
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: `${symbol} Цена`,
-          data: dataPoints,
-          borderColor: '#00ff99',
-          backgroundColor: 'rgba(0,255,153,0.3)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: false, ticks: { color: 'white' }},
-          x: { ticks: { color: 'white' }}
-        },
-        plugins: { legend: { labels: { color: 'white' }}}
-      }
-    });
-  }
-
-  // Простой мини-бот прогнозов
-  const botForecasts = [
-    'BTC вырастет на 5% в ближайшие 24 часа.',
-    'ETH ожидает коррекцию, будьте осторожны.',
-    'SOL может показать рост после обновления сети.',
-    'XRP стабилен, ожидается консолидация.',
-    'DOGE может удивить новыми максимумами.',
-    'ADA будет расти в долгосрочной перспективе.',
-    'Рынок в целом позитивный, хорошее время для инвестиций.',
-    'Некоторая волатильность ожидается в ближайшие дни.',
-    'Следите за новостями по BTC для своевременных решений.',
-    'ETH может столкнуться с сопротивлением на уровне $3600.'
-  ];
-
-  function startBot() {
-    botMessages.innerHTML = '';
-    showBotMessage();
-    setInterval(showBotMessage, 7000);
-  }
-
-  function showBotMessage() {
-    const msg = botForecasts[Math.floor(Math.random() * botForecasts.length)];
-    const p = document.createElement('p');
-    p.textContent = msg;
-    botMessages.appendChild(p);
-    botMessages.scrollTop = botMessages.scrollHeight;
-  }
-
-  // Анимация свечей на фоне экрана входа
-  const canvas = document.getElementById('candles-canvas');
-  const ctx = canvas.getContext('2d');
-  let width, height;
-
-  function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  class Candle {
-    constructor(x) {
-      this.x = x;
-      this.baseY = height * 0.8;
-      this.width = 8;
-      this.height = 50 + Math.random() * 70;
-      this.colorGreen = '#00ff99';
-      this.colorRed = '#ff3860';
-      this.isGreen = Math.random() > 0.5;
-      this.speed = 0.5 + Math.random();
-      this.phase = Math.random() * Math.PI * 2;
-    }
-    draw(ctx) {
-      // Колебание свечи по высоте (анимация)
-      const flicker = Math.sin(Date.now() / 300 + this.phase) * 5;
-      const h = this.height + flicker;
-
-      ctx.fillStyle = this.isGreen ? this.colorGreen : this.colorRed;
-      // Тело свечи
-      ctx.fillRect(this.x, this.baseY - h, this.width, h);
-
-      // Фитиль (верхний и нижний)
-      const wickHeight = 10;
-      ctx.strokeStyle = ctx.fillStyle;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      // Верхний фитиль
-      ctx.moveTo(this.x + this.width/2, this.baseY - h);
-      ctx.lineTo(this.x + this.width/2, this.baseY - h - wickHeight);
-      // Нижний фитиль
-      ctx.moveTo(this.x + this.width/2, this.baseY);
-      ctx.lineTo(this.x + this.width/2, this.baseY + wickHeight / 2);
-      ctx.stroke();
-    }
-    update() {
-      // Можно добавить движение или другие эффекты
-    }
-  }
-
-  const candles = [];
-  const candleCount = Math.floor(window.innerWidth / 15);
-  for(let i=0; i < candleCount; i++) {
-    candles.push(new Candle(i * 15 + 10));
-  }
-
-  function animateCandles() {
-    ctx.clearRect(0, 0, width, height);
-    candles.forEach(c => {
-      c.draw(ctx);
-      c.update();
-    });
-    requestAnimationFrame(animateCandles);
-  }
-
-  animateCandles();
+// Запускаем пример функции каждую минуту (демонстрация)
+setInterval(exampleHelperFunction, 60000);
 
 </script>
-</body>
-</html>
