@@ -1,309 +1,846 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tradex App</title>
-<style>
-  body, html {
-    margin: 0; padding: 0; height: 100%; background-color: #0e0e10; font-family: sans-serif; color: white;
-  }
-  #login-container {
-    height: 100vh; width: 100vw;
-    display: flex; align-items: center; justify-content: center;
-    background-color: #0e0e10; flex-direction: column;
-  }
-  #login-container h1 {
-    margin-bottom: 20px;
-    font-weight: 700;
-    font-size: 28px;
-    letter-spacing: 1.5px;
-  }
-  #login-container input {
-    margin: 8px 0;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #555;
-    background-color: #1a1a1a;
-    color: white;
-    width: 200px;
-    font-size: 16px;
-  }
-  #login-container button {
-    padding: 10px 20px;
-    background-color: #3a3a3a;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-  }
-  #login-error {
-    color: #f44336;
-    margin-top: 10px;
-    height: 20px;
-  }
-  #loader {
-    height: 100vh; width: 100vw;
-    display: none;
-    align-items: center; justify-content: center;
-    background-color: #0e0e10;
-    flex-direction: column;
-    font-size: 20px;
-    letter-spacing: 2px;
-  }
-  .abstergo-loader {
-    display: flex;
-    gap: 10px;
-  }
-  .abstergo-loader div {
-    width: 15px; height: 15px;
-    background: #00ff99;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite ease-in-out;
-  }
-  .abstergo-loader div:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-  .abstergo-loader div:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 0.2; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.5); }
-  }
-  #app {
-    display: none;
-    height: 100vh; width: 100vw;
-    background-color: #0e0e10;
-    position: relative;
-    overflow: hidden;
-  }
-  #symbol-selector {
-    position: absolute;
-    top: 15px; left: 15px;
-    background: rgba(20,20,20,0.85);
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 12px;
-    z-index: 10;
-  }
-  #symbol-selector label, select {
-    color: white;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  select {
-    margin-left: 8px;
-    background: #0e0e10;
-    border: 1px solid #555;
-    border-radius: 4px;
-    padding: 4px 8px;
-    color: white;
-  }
-  #chart-container {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%; height: 100%;
-  }
-  #bot {
-    position: absolute;
-    top: 50px;
-    left: 20px;
-    background: rgba(0,0,0,0.8);
-    border-radius: 8px;
-    padding: 15px;
-    width: 260px;
-    font-size: 14px;
-    color: #00ff99;
-    box-shadow: 0 0 12px #00ff99aa;
-    user-select: none;
-  }
-  #bot h2 {
-    margin: 0 0 12px 0;
-    font-weight: 700;
-    font-size: 18px;
-    color: #00ffaa;
-  }
-  #bot ul {
-    list-style: none;
-    padding: 0; margin: 0;
-  }
-  #bot ul li {
-    margin-bottom: 10px;
-    line-height: 1.3;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradex - Торговая платформа</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Стили для страницы авторизации */
+        #auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .auth-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .auth-form h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: #00b4d8;
+            text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #00b4d8;
+            box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-btn:hover {
+            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        /* Стили для основной платформы */
+        #platform-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00b4d8;
+            text-shadow: 0 0 15px rgba(0, 180, 216, 0.7);
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 30px 0;
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item {
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: rgba(0, 180, 216, 0.2);
+            border-left: 4px solid #00b4d8;
+        }
+        
+        .menu-item.active {
+            background: rgba(0, 180, 216, 0.3);
+            border-left: 4px solid #00b4d8;
+        }
+        
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: #00b4d8;
+            text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+        }
+        
+        /* Стили для профиля */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 600px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            margin-right: 20px;
+        }
+        
+        .profile-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-info p {
+            color: #ccc;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .save-btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .save-btn:hover {
+            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+        }
+        
+        /* Стили для рынка */
+        .market-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .coin-selector {
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            height: 400px;
+        }
+        
+        /* Стили для анализов */
+        .analysis-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 30px;
+        }
+        
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .ai-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        /* Стили для новостей */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .news-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .news-content {
+            padding: 20px;
+        }
+        
+        .news-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #00b4d8;
+        }
+        
+        .news-date {
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Стили для пользователей */
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .user-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+        }
+        
+        .admin-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 15px 0;
+            }
+            
+            .menu-item {
+                padding: 12px 20px;
+            }
+            
+            .news-grid,
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Контейнер авторизации -->
+    <div id="auth-container">
+        <div class="auth-form">
+            <h1>Tradex</h1>
+            <div class="input-group">
+                <label for="login">Логин</label>
+                <input type="text" id="login" placeholder="Введите ваш логин">
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" placeholder="Введите ваш пароль">
+            </div>
+            <button class="auth-btn" id="login-btn">Войти</button>
+            <div class="error-message" id="error-message">Неверный логин или пароль</div>
+        </div>
+    </div>
+    
+    <!-- Контейнер платформы -->
+    <div id="platform-container">
+        <header class="header">
+            <div class="logo">Tradex</div>
+            <div id="current-time">00:00:00</div>
+        </header>
+        
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="menu-item active" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </div>
+                <div class="menu-item" data-section="market">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Рынок</span>
+                </div>
+                <div class="menu-item" data-section="analysis">
+                    <i class="fas fa-brain"></i>
+                    <span>Анализы</span>
+                </div>
+                <div class="menu-item" data-section="news">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Новости</span>
+                </div>
+                <div class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Пользователи</span>
+                </div>
+                <div class="menu-item" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Выйти</span>
+                </div>
+            </aside>
+            
+            <main class="content">
+                <!-- Профиль -->
+                <section class="section active" id="profile-section">
+                    <h2 class="section-title">Профиль</h2>
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h2>Администратор</h2>
+                                <p>admin@tradex.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username">Имя пользователя</label>
+                            <input type="text" id="username" value="Администратор">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="admin@tradex.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="current-password">Текущий пароль</label>
+                            <input type="password" id="current-password" placeholder="Введите текущий пароль">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-password">Новый пароль</label>
+                            <input type="password" id="new-password" placeholder="Введите новый пароль">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm-password">Подтвердите пароль</label>
+                            <input type="password" id="confirm-password" placeholder="Подтвердите новый пароль">
+                        </div>
+                        
+                        <button class="save-btn">Сохранить изменения</button>
+                    </div>
+                </section>
+                
+                <!-- Рынок -->
+                <section class="section" id="market-section">
+                    <h2 class="section-title">Рынок</h2>
+                    
+                    <div class="market-controls">
+                        <select class="coin-selector" id="coin-selector">
+                            <option value="bitcoin">Bitcoin (BTC)</option>
+                            <option value="ethereum">Ethereum (ETH)</option>
+                            <option value="ripple">Ripple (XRP)</option>
+                            <option value="litecoin">Litecoin (LTC)</option>
+                            <option value="cardano">Cardano (ADA)</option>
+                        </select>
+                        
+                        <select class="coin-selector" id="timeframe-selector">
+                            <option value="1">1 час</option>
+                            <option value="24">24 часа</option>
+                            <option value="7" selected>7 дней</option>
+                            <option value="30">30 дней</option>
+                            <option value="90">90 дней</option>
+                        </select>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="market-chart"></canvas>
+                    </div>
+                    
+                    <div class="market-info">
+                        <h3>Информация о выбранной монете</h3>
+                        <div id="coin-info">
+                            <p>Выберите криптовалюту для отображения данных</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Анализы -->
+                <section class="section" id="analysis-section">
+                    <h2 class="section-title">Анализы</h2>
+                    
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="ai-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3>Анализ рынка от ИИ</h3>
+                        </div>
+                        
+                        <p>Наша система искусственного интеллекта анализирует рыночные тенденции и предоставляет прогнозы на основе исторических данных и текущей ситуации на рынке.</p>
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label for="analysis-coin">Выберите криптовалюту для анализа</label>
+                            <select class="coin-selector" id="analysis-coin">
+                                <option value="bitcoin">Bitcoin (BTC)</option>
+                                <option value="ethereum">Ethereum (ETH)</option>
+                                <option value="ripple">Ripple (XRP)</option>
+                                <option value="litecoin">Litecoin (LTC)</option>
+                                <option value="cardano">Cardano (ADA)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="save-btn" style="margin-top: 20px;" id="run-analysis">Запустить анализ</button>
+                        
+                        <div id="analysis-result" style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 10px; display: none;">
+                            <h4>Результаты анализа:</h4>
+                            <p>Здесь будут отображены результаты анализа после его запуска.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Новости -->
+                <section class="section" id="news-section">
+                    <h2 class="section-title">Новости</h2>
+                    
+                    <div class="news-grid" id="news-container">
+                        <div class="news-card">
+                            <div class="news-content">
+                                <h3 class="news-title">Bitcoin достиг нового максимума</h3>
+                                <div class="news-date">15 ноября 2023</div>
+                                <p>Цена Bitcoin достигла нового исторического максимума, превысив отметку в $68,000.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="news-card">
+                            <div class="news-content">
+                                <h3 class="news-title">Ethereum 2.0: Обновление сети</h3>
+                                <div class="news-date">14 ноября 2023</div>
+                                <p>Запуск Ethereum 2.0 принесет значительные улучшения в масштабируемости и безопасности сети.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="news-card">
+                            <div class="news-content">
+                                <h3 class="news-title">Центральные банки изучают CBDC</h3>
+                                <div class="news-date">13 ноября 2023</div>
+                                <p>Центральные банки по всему миру активно изучают возможность выпуска цифровых валют.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Пользователи -->
+                <section class="section" id="users-section">
+                    <h2 class="section-title">Пользователи</h2>
+                    
+                    <div class="users-grid">
+                        <div class="user-card">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>Администратор</h3>
+                            <p>admin@tradex.com</p>
+                            <div class="admin-badge">Администратор</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
 
-<div id="login-container">
-  <h1>Войти в Tradex</h1>
-  <input type="text" id="login" placeholder="Login" autocomplete="off" />
-  <input type="password" id="password" placeholder="Password" autocomplete="off" />
-  <button id="login-btn">Sign In</button>
-  <div id="login-error"></div>
-</div>
-
-<div id="loader">
-  <div class="abstergo-loader">
-    <div></div><div></div><div></div>
-  </div>
-  <div style="margin-top:15px;">Tradex App Loading</div>
-</div>
-
-<div id="app">
-  <div id="symbol-selector">
-    <label for="symbol">Монета:</label>
-    <select id="symbol">
-      <option value="BTCUSDT">Bitcoin (BTC)</option>
-      <option value="ETHUSDT">Ethereum (ETH)</option>
-      <option value="SOLUSDT">Solana (SOL)</option>
-      <option value="XRPUSDT">XRP</option>
-      <option value="DOGEUSDT">Dogecoin (DOGE)</option>
-      <option value="ADAUSDT">Cardano (ADA)</option>
-    </select>
-  </div>
-  <div id="chart-container"></div>
-  <div id="bot">
-    <h2>Прогнозы бота</h2>
-    <ul id="bot-messages"></ul>
-  </div>
-</div>
-
-<script src="https://s3.tradingview.com/tv.js"></script>
-<script>
-const loginContainer = document.getElementById('login-container');
-const loader = document.getElementById('loader');
-const app = document.getElementById('app');
-const loginBtn = document.getElementById('login-btn');
-const loginError = document.getElementById('login-error');
-const symbolSelect = document.getElementById('symbol');
-const botMessagesUl = document.getElementById('bot-messages');
-const chartContainer = document.getElementById('chart-container');
-
-const validLogin = 'admin';
-const validPassword = 'MODERATOR';
-
-let widget = null;
-let currentSymbol = symbolSelect.value;
-
-const botForecasts = {
-  BTCUSDT: [
-    'BTC растет, возможен откат.',
-    'Покупка по текущей цене — рискованно.',
-    'Ожидается сильное движение вверх.',
-    'Цена может зафиксировать уровень поддержки.',
-  ],
-  ETHUSDT: [
-    'ETH стабилизируется, можно ждать входа.',
-    'Высокая волатильность сегодня.',
-    'Ожидается рост на новостях.',
-    'Возможен небольшой спад перед ростом.',
-  ],
-  SOLUSDT: [
-    'SOL демонстрирует силу, держать позиции.',
-    'Скоро может быть коррекция.',
-    'Идеальное время для покупки.',
-    'Прогноз — боковой тренд.',
-  ],
-  XRPUSDT: [
-    'XRP может пробить сопротивление.',
-    'Будьте осторожны, возможен флэт.',
-    'Позитивный настрой рынка.',
-    'Краткосрочная фиксация прибыли возможна.',
-  ],
-  DOGEUSDT: [
-    'DOGE нестабилен, играть осторожно.',
-    'Ожидается всплеск активности.',
-    'Можно рассматривать для краткосрочных сделок.',
-    'Риск высок, рекомендуем наблюдать.',
-  ],
-  ADAUSDT: [
-    'ADA укрепляет позиции.',
-    'Небольшая коррекция — нормальное явление.',
-    'Рост на фоне позитивных новостей.',
-    'Текущий уровень — хороший вход.',
-  ],
-};
-
-document.getElementById('login').addEventListener('keydown', e => {
-  if (e.key === 'Enter') loginBtn.click();
-});
-document.getElementById('password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') loginBtn.click();
-});
-
-loginBtn.addEventListener('click', () => {
-  const login = document.getElementById('login').value.trim();
-  const password = document.getElementById('password').value.trim();
-  if (login === validLogin && password === validPassword) {
-    loginError.textContent = '';
-    loginContainer.style.display = 'none';
-    loader.style.display = 'flex';
-    setTimeout(() => {
-      loader.style.display = 'none';
-      app.style.display = 'block';
-      initTradingViewWidget(currentSymbol);
-      startBot();
-    }, 3000);
-  } else {
-    loginError.textContent = 'Неверный логин или пароль';
-  }
-});
-
-function initTradingViewWidget(symbol) {
-  if(widget) widget.remove();
-  widget = new TradingView.widget({
-    container_id: "chart-container",
-    symbol: symbol,
-    interval: "60",
-    timezone: "Etc/UTC",
-    theme: "dark",
-    style: "1",
-    locale: "ru",
-    toolbar_bg: "#0e0e10",
-    enable_publishing: false,
-    allow_symbol_change: false,
-    hide_top_toolbar: true,
-    save_image: false,
-    studies: [],
-  });
-}
-
-symbolSelect.addEventListener('change', e => {
-  currentSymbol = e.target.value;
-  initTradingViewWidget(currentSymbol);
-  updateBotMessages();
-});
-
-let botInterval = null;
-
-function startBot() {
-  updateBotMessages();
-  if(botInterval) clearInterval(botInterval);
-  botInterval = setInterval(updateBotMessages, 5000);
-}
-function stopBot() {
-  if(botInterval) {
-    clearInterval(botInterval);
-    botInterval = null;
-  }
-}
-
-function updateBotMessages() {
-  const forecasts = botForecasts[currentSymbol] || ['Прогнозов нет.'];
-  botMessagesUl.innerHTML = '';
-  let shuffled = forecasts.slice().sort(() => 0.5 - Math.random());
-  let toShow = shuffled.slice(0, 3);
-  toShow.forEach(text => {
-    const li = document.createElement('li');
-    li.textContent = text;
-    botMessagesUl.appendChild(li);
-  });
-}
-</script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Элементы DOM
+            const authContainer = document.getElementById('auth-container');
+            const platformContainer = document.getElementById('platform-container');
+            const loginBtn = document.getElementById('login-btn');
+            const errorMessage = document.getElementById('error-message');
+            const logoutBtn = document.getElementById('logout-btn');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('.section');
+            const currentTimeElement = document.getElementById('current-time');
+            
+            // Обновление времени
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ru-RU');
+                currentTimeElement.textContent = timeString;
+            }
+            
+            setInterval(updateTime, 1000);
+            updateTime();
+            
+            // Обработчик входа
+            loginBtn.addEventListener('click', function() {
+                const login = document.getElementById('login').value;
+                const password = document.getElementById('password').value;
+                
+                if (login === 'admin' && password === 'root') {
+                    authContainer.style.display = 'none';
+                    platformContainer.style.display = 'block';
+                } else {
+                    errorMessage.style.display = 'block';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 3000);
+                }
+            });
+            
+            // Обработчик выхода
+            logoutBtn.addEventListener('click', function() {
+                authContainer.style.display = 'flex';
+                platformContainer.style.display = 'none';
+                document.getElementById('login').value = '';
+                document.getElementById('password').value = '';
+            });
+            
+            // Переключение разделов
+            menuItems.forEach(item => {
+                if (item.id !== 'logout-btn') {
+                    item.addEventListener('click', function() {
+                        const sectionId = this.getAttribute('data-section');
+                        
+                        // Убираем активный класс у всех пунктов меню
+                        menuItems.forEach(menuItem => {
+                            menuItem.classList.remove('active');
+                        });
+                        
+                        // Добавляем активный класс к текущему пункту меню
+                        this.classList.add('active');
+                        
+                        // Скрываем все секции
+                        sections.forEach(section => {
+                            section.classList.remove('active');
+                        });
+                        
+                        // Показываем выбранную секцию
+                        document.getElementById(`${sectionId}-section`).classList.add('active');
+                    });
+                }
+            });
+            
+            // Инициализация графика
+            const marketChart = new Chart(document.getElementById('market-chart'), {
+                type: 'line',
+                data: {
+                    labels: ['1', '2', '3', '4', '5', '6', '7'],
+                    datasets: [{
+                        label: 'Цена BTC',
+                        data: [42000, 42150, 41980, 42200, 42350, 42100, 42500],
+                        borderColor: '#00b4d8',
+                        backgroundColor: 'rgba(0, 180, 216, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Обработчик выбора монеты
+            document.getElementById('coin-selector').addEventListener('change', function() {
+                const coin = this.value;
+                updateChart(coin);
+            });
+            
+            // Обработчик выбора временного интервала
+            document.getElementById('timeframe-selector').addEventListener('change', function() {
+                const coin = document.getElementById('coin-selector').value;
+                updateChart(coin);
+            });
+            
+            // Функция обновления графика
+            function updateChart(coin) {
+                // Здесь будет логика обновления данных графика
+                // В реальном приложении здесь был бы запрос к API
+                
+                // Заглушка с случайными данными
+                const days = parseInt(document.getElementById('timeframe-selector').value);
+                const newData = Array.from({length: days}, () => Math.floor(Math.random() * 10000) + 30000);
+                const labels = Array.from({length: days}, (_, i) => i + 1);
+                
+                marketChart.data.labels = labels;
+                marketChart.data.datasets[0].data = newData;
+                marketChart.data.datasets[0].label = `Цена ${coin.toUpperCase()}`;
+                marketChart.update();
+                
+                // Обновляем информацию о монете
+                document.getElementById('coin-info').innerHTML = `
+                    <p>Текущая цена: $${newData[newData.length - 1].toLocaleString()}</p>
+                    <p>Изменение за период: ${(newData[newData.length - 1] > newData[0] ? '+' : '')}${((newData[newData.length - 1] - newData[0]) / newData[0] * 100).toFixed(2)}%</p>
+                `;
+            }
+            
+            // Обработчик запуска анализа
+            document.getElementById('run-analysis').addEventListener('click', function() {
+                const analysisResult = document.getElementById('analysis-result');
+                analysisResult.style.display = 'block';
+                
+                // Имитация анализа
+                analysisResult.innerHTML = `
+                    <h4>Результаты анализа:</h4>
+                    <p>Анализируем данные... <i class="fas fa-spinner fa-spin"></i></p>
+                `;
+                
+                setTimeout(() => {
+                    const coin = document.getElementById('analysis-coin').value;
+                    const outcomes = [
+                        `На основе нашего анализа, ${coin.toUpperCase()} показывает признаки роста в ближайшие дни.`,
+                        `Анализ указывает на возможную коррекцию цены ${coin.toUpperCase()} в短期ной перспективе.`,
+                        `Наши алгоритмы предсказывают стабильность для ${coin.toUpperCase()} в ближайшее время.`,
+                        `ИИ обнаружил высокую волатильность для ${coin.toUpperCase()} в ближайшие дни.`
+                    ];
+                    
+                    const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+                    
+                    analysisResult.innerHTML = `
+                        <h4>Результаты анализа для ${coin.toUpperCase()}:</h4>
+                        <p>${randomOutcome}</p>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            <p><strong>Рекомендация:</strong> ${Math.random() > 0.5 ? 'Покупка' : 'Удержание'}</p>
+                            <p><strong>Уверенность прогноза:</strong> ${(Math.random() * 50 + 50).toFixed(0)}%</p>
+                        </div>
+                    `;
+                }, 2000);
+            });
+            
+            // Имитация загрузки новостей
+            setTimeout(() => {
+                document.getElementById('news-container').innerHTML += `
+                    <div class="news-card">
+                        <div class="news-content">
+                            <h3 class="news-title">Новые регуляторные меры для криптовалют</h3>
+                            <div class="news-date">12 ноября 2023</div>
+                            <p>Правительства разных стран рассматривают новые меры регулирования криптовалютного рынка.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="news-card">
+                        <div class="news-content">
+                            <h3 class="news-title">Рост DeFi продолжается</h3>
+                            <div class="news-date">11 ноября 2023</div>
+                            <p>Общая стоимость заблокированных средств в децентрализованных финансах достигла новых рекордов.</p>
+                        </div>
+                    </div>
+                `;
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
