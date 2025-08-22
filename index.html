@@ -15,39 +15,43 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: #0a0a0a;
             color: #fff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
         
         /* Стили для страницы авторизации */
         #auth-container {
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            background: linear-gradient(to left, rgba(10,10,10,0.9), rgba(10,10,10,0.7)), 
+                        url('https://images.unsplash.com/photo-1642104704073-3a47334c1c52?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center;
+            background-size: cover;
         }
         
         .auth-form {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            background: rgba(20, 20, 20, 0.95);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 0, 0, 0.2);
             width: 100%;
             max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #ff2e2e;
+            margin-right: 50px;
         }
         
         .auth-form h1 {
             text-align: center;
             margin-bottom: 30px;
             font-size: 2.5rem;
-            color: #00b4d8;
-            text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+            color: #ff2e2e;
+            text-shadow: 0 0 10px rgba(255, 46, 46, 0.5);
         }
         
         .input-group {
@@ -58,6 +62,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+            color: #ddd;
         }
         
         .input-group input {
@@ -65,17 +70,17 @@
             padding: 15px;
             border: none;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(50, 50, 50, 0.8);
             color: #fff;
             font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #333;
             transition: all 0.3s ease;
         }
         
         .input-group input:focus {
             outline: none;
-            border-color: #00b4d8;
-            box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+            border-color: #ff2e2e;
+            box-shadow: 0 0 10px rgba(255, 46, 46, 0.5);
         }
         
         .auth-btn {
@@ -83,7 +88,7 @@
             padding: 15px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            background: linear-gradient(90deg, #ff2e2e, #cc0000);
             color: white;
             font-size: 18px;
             font-weight: 600;
@@ -92,9 +97,9 @@
         }
         
         .auth-btn:hover {
-            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            background: linear-gradient(90deg, #cc0000, #ff2e2e);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 46, 46, 0.4);
         }
         
         .error-message {
@@ -109,23 +114,24 @@
         #platform-container {
             display: none;
             min-height: 100vh;
+            background: #0a0a0a;
         }
         
         .header {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(20, 20, 20, 0.95);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid #ff2e2e;
+            box-shadow: 0 2px 10px rgba(255, 46, 46, 0.2);
         }
         
         .logo {
             font-size: 2rem;
             font-weight: 700;
-            color: #00b4d8;
-            text-shadow: 0 0 15px rgba(0, 180, 216, 0.7);
+            color: #ff2e2e;
+            text-shadow: 0 0 15px rgba(255, 46, 46, 0.7);
         }
         
         .main-content {
@@ -135,10 +141,9 @@
         
         .sidebar {
             width: 250px;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(20, 20, 20, 0.95);
             padding: 30px 0;
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid #ff2e2e;
         }
         
         .menu-item {
@@ -148,16 +153,19 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
+            color: #ddd;
         }
         
         .menu-item:hover {
-            background: rgba(0, 180, 216, 0.2);
-            border-left: 4px solid #00b4d8;
+            background: rgba(255, 46, 46, 0.2);
+            border-left: 4px solid #ff2e2e;
+            color: #fff;
         }
         
         .menu-item.active {
-            background: rgba(0, 180, 216, 0.3);
-            border-left: 4px solid #00b4d8;
+            background: rgba(255, 46, 46, 0.3);
+            border-left: 4px solid #ff2e2e;
+            color: #fff;
         }
         
         .menu-item i {
@@ -165,12 +173,14 @@
             font-size: 20px;
             width: 24px;
             text-align: center;
+            color: #ff2e2e;
         }
         
         .content {
             flex: 1;
             padding: 30px;
             overflow-y: auto;
+            background: #0f0f0f;
         }
         
         .section {
@@ -185,17 +195,16 @@
         .section-title {
             font-size: 2rem;
             margin-bottom: 25px;
-            color: #00b4d8;
-            text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+            color: #ff2e2e;
+            text-shadow: 0 0 10px rgba(255, 46, 46, 0.5);
         }
         
         /* Стили для профиля */
         .profile-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             padding: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #333;
             max-width: 600px;
         }
         
@@ -209,7 +218,7 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            background: linear-gradient(45deg, #ff2e2e, #cc0000);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -220,6 +229,7 @@
         .profile-info h2 {
             font-size: 1.8rem;
             margin-bottom: 5px;
+            color: #fff;
         }
         
         .profile-info p {
@@ -234,6 +244,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+            color: #ddd;
         }
         
         .form-group input {
@@ -241,15 +252,15 @@
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(50, 50, 50, 0.8);
             color: #fff;
             font-size: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #333;
         }
         
         .save-btn {
             padding: 12px 25px;
-            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            background: linear-gradient(90deg, #ff2e2e, #cc0000);
             color: white;
             border: none;
             border-radius: 8px;
@@ -259,9 +270,9 @@
         }
         
         .save-btn:hover {
-            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            background: linear-gradient(90deg, #cc0000, #ff2e2e);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+            box-shadow: 0 5px 15px rgba(255, 46, 46, 0.4);
         }
         
         /* Стили для рынка */
@@ -275,30 +286,28 @@
         .coin-selector {
             padding: 12px 20px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid #333;
             color: #fff;
             font-size: 16px;
             min-width: 200px;
         }
         
         .chart-container {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #333;
             height: 400px;
         }
         
         /* Стили для анализов */
         .analysis-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             padding: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #333;
             margin-bottom: 30px;
         }
         
@@ -312,7 +321,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            background: linear-gradient(45deg, #ff2e2e, #cc0000);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -328,16 +337,17 @@
         }
         
         .news-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #333;
             transition: transform 0.3s ease;
         }
         
         .news-card:hover {
             transform: translateY(-5px);
+            border-color: #ff2e2e;
+            box-shadow: 0 5px 15px rgba(255, 46, 46, 0.3);
         }
         
         .news-content {
@@ -347,7 +357,7 @@
         .news-title {
             font-size: 1.2rem;
             margin-bottom: 10px;
-            color: #00b4d8;
+            color: #ff2e2e;
         }
         
         .news-date {
@@ -364,19 +374,18 @@
         }
         
         .user-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid #333;
         }
         
         .user-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #00b4d8, #0077b6);
+            background: linear-gradient(45deg, #ff2e2e, #cc0000);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -387,7 +396,7 @@
         .admin-badge {
             display: inline-block;
             padding: 5px 10px;
-            background: linear-gradient(90deg, #00b4d8, #0077b6);
+            background: linear-gradient(90deg, #ff2e2e, #cc0000);
             border-radius: 20px;
             font-size: 0.8rem;
             margin-top: 10px;
@@ -401,6 +410,14 @@
         
         /* Адаптивность */
         @media (max-width: 768px) {
+            #auth-container {
+                justify-content: center;
+            }
+            
+            .auth-form {
+                margin-right: 0;
+            }
+            
             .main-content {
                 flex-direction: column;
             }
@@ -715,8 +732,8 @@
                     datasets: [{
                         label: 'Цена BTC',
                         data: [42000, 42150, 41980, 42200, 42350, 42100, 42500],
-                        borderColor: '#00b4d8',
-                        backgroundColor: 'rgba(0, 180, 216, 0.1)',
+                        borderColor: '#ff2e2e',
+                        backgroundColor: 'rgba(255, 46, 46, 0.1)',
                         borderWidth: 2,
                         fill: true,
                         tension: 0.4
